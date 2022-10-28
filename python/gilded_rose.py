@@ -6,34 +6,45 @@ class GildedRose(object):
         self.items = items
 
     def update_quality(self):
+        # Given rules values
+        max_quality = 50
+        min_quality = 0
+        min_day = 0
+        lose_quality = 1
+        earn_quality = 1
+        day_value = 1
+        concert_step = {"day_max": 11, "day_min": 6}
         for item in self.items:
-            if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert":
-                if item.quality > 0:
-                    if item.name != "Sulfuras, Hand of Ragnaros":
-                        item.quality = item.quality - 1
+            # Sulfuras is constant, initial check
+            if item.name == "Sulfuras, Hand of Ragnaros":
+                continue
+            elif item.name != "Backstage passes to a TAFKAL80ETC concert" and item.name != "Aged Brie":
+                if item.quality > min_quality:
+                    item.quality -= lose_quality
+                    # Conjured items special lose quality condition
+                    if item.quality > min_quality and item.name == "Conjured Mana Cake" :
+                        item.quality -= lose_quality
             else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
+                if item.quality < max_quality:
+                    item.quality += earn_quality
                     if item.name == "Backstage passes to a TAFKAL80ETC concert":
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != "Sulfuras, Hand of Ragnaros":
-                item.sell_in = item.sell_in - 1
-            if item.sell_in < 0:
+                        if item.sell_in < concert_step["day_max"] and item.quality < max_quality:
+                            item.quality += earn_quality
+                        if item.sell_in < concert_step["day_min"] and item.quality < max_quality:
+                            item.quality += earn_quality
+            item.sell_in -= day_value
+            if item.sell_in < min_day:
                 if item.name != "Aged Brie":
                     if item.name != "Backstage passes to a TAFKAL80ETC concert":
-                        if item.quality > 0:
-                            if item.name != "Sulfuras, Hand of Ragnaros":
-                                item.quality = item.quality - 1
+                        if item.name == "Conjured Mana Cake" and item.quality > min_quality:
+                            item.quality -= lose_quality
+                        elif item.quality > min_quality:
+                            item.quality -= lose_quality
                     else:
-                        item.quality = item.quality - item.quality
+                        item.quality -= item.quality
                 else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+                    if item.quality < max_quality:
+                        item.quality += earn_quality
 
 
 class Item:
